@@ -3,19 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Countdown Timer</title>
+<title>Animated Countdown Timer</title>
 <style>
-  /* --- 您可以在这里轻松修改样式 --- */
+  /* --- 样式配置区 --- */
   :root {
-    --background-color: #f0f2f5; /* 背景颜色 */
-    --box-color: #ffffff;        /* 数字方块颜色 */
-    --text-color: #333333;        /* 标题文字颜色 */
-    --number-color: #d9534f;      /* 数字颜色 */
-    --label-color: #888888;       /* "天/时/分/秒"文字颜色 */
+    --background-color: #f0f2f5;
+    --box-color: #ffffff;
+    --text-color: #333333;
+    --number-color: #d9534f;
+    --label-color: #888888;
     --font-family: -apple-system, BlinkMacSystem-Font, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
-  /* ---------------------------------- */
+  /* --- 动画关键帧：定义“翻页”动作 --- */
+  @keyframes flipDown {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    50% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes flipOut {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+  }
 
+  /* --- 基础样式 --- */
   body {
     background-color: var(--background-color);
     font-family: var(--font-family);
@@ -37,7 +66,7 @@
   #timer {
     display: flex;
     justify-content: center;
-    gap: 15px; /* 方块之间的间距 */
+    gap: 15px;
   }
   .unit {
     background-color: var(--box-color);
@@ -46,12 +75,32 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     width: 80px;
   }
+
+  /* --- 动画核心样式 --- */
+  .number-flipper {
+    position: relative; /* 设置为相对定位，作为动画的容器 */
+    height: 44px; /* 固定高度，以容纳数字 */
+    overflow: hidden; /* 隐藏超出容器的动画部分 */
+  }
   .number {
     display: block;
     font-size: 36px;
     font-weight: bold;
     color: var(--number-color);
+    /* 默认状态下位于容器中心 */
+    position: absolute;
+    width: 100%;
+    left: 0;
   }
+
+  /* 定义动画类 */
+  .number.new {
+    animation: flipDown 0.6s ease-in-out;
+  }
+  .number.old {
+    animation: flipOut 0.6s ease-in-out;
+  }
+  
   .label {
     display: block;
     font-size: 14px;
@@ -67,19 +116,27 @@
   
   <div id="timer">
     <div class="unit">
-      <span class="number" id="days">00</span>
+      <div class="number-flipper" id="days-flipper">
+          <span class="number">00</span>
+      </div>
       <span class="label">天</span>
     </div>
     <div class="unit">
-      <span class="number" id="hours">00</span>
+      <div class="number-flipper" id="hours-flipper">
+          <span class="number">00</span>
+      </div>
       <span class="label">时</span>
     </div>
     <div class="unit">
-      <span class="number" id="minutes">00</span>
+      <div class="number-flipper" id="minutes-flipper">
+          <span class="number">00</span>
+      </div>
       <span class="label">分</span>
     </div>
     <div class="unit">
-      <span class="number" id="seconds">00</span>
+      <div class="number-flipper" id="seconds-flipper">
+          <span class="number">00</span>
+      </div>
       <span class="label">秒</span>
     </div>
   </div>
@@ -87,19 +144,41 @@
 
 <script>
 // --- 您只需要在这里修改配置 ---
-// 1. 设置您的目标日期和时间
-// 格式: "YYYY-MM-DDTHH:mm:ss" (年-月-日 T 时:分:秒)
 const targetDate = new Date("2025-12-20T08:00:00");
-
-// 2. 设置倒计时结束时显示的文字
-const finishedMessage = "金榜题名！🎉";
+const finishedMessage = "金榜题名🎉";
 // ------------------------------
 
-const daysEl = document.getElementById('days');
-const hoursEl = document.getElementById('hours');
-const minutesEl = document.getElementById('minutes');
-const secondsEl = document.getElementById('seconds');
+// 获取flipper容器
+const daysFlipper = document.getElementById('days-flipper');
+const hoursFlipper = document.getElementById('hours-flipper');
+const minutesFlipper = document.getElementById('minutes-flipper');
+const secondsFlipper = document.getElementById('seconds-flipper');
 const titleEl = document.getElementById('title');
+
+// 封装一个更新动画的函数
+function updateUnit(flipperElement, newValue) {
+  const currentNumberElement = flipperElement.querySelector('.number');
+  const currentValue = currentNumberElement.textContent;
+
+  // 只有当数字真的改变时才执行动画
+  if (currentValue !== newValue) {
+    // 1. 给旧数字添加“移出”动画
+    currentNumberElement.classList.add('old');
+    
+    // 2. 创建一个新数字，并给它添加“进入”动画
+    const newNumberElement = document.createElement('span');
+    newNumberElement.classList.add('number', 'new');
+    newNumberElement.textContent = newValue;
+    
+    // 3. 当旧数字的移出动画结束后，将其从DOM中移除
+    currentNumberElement.addEventListener('animationend', () => {
+      currentNumberElement.remove();
+    });
+
+    // 4. 将新数字添加到容器中
+    flipperElement.appendChild(newNumberElement);
+  }
+}
 
 function updateCountdown() {
   const now = new Date();
@@ -107,24 +186,26 @@ function updateCountdown() {
 
   if (diff <= 0) {
     titleEl.textContent = finishedMessage;
-    document.getElementById('timer').style.display = 'none'; // 隐藏计时器
+    document.getElementById('timer').style.display = 'none';
     clearInterval(interval);
     return;
   }
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  // 计算时间
+  const days = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+  const hours = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+  const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+  const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
 
-  daysEl.textContent = String(days).padStart(2, '0');
-  hoursEl.textContent = String(hours).padStart(2, '0');
-  minutesEl.textContent = String(minutes).padStart(2, '0');
-  secondsEl.textContent = String(seconds).padStart(2, '0');
+  // 使用新的动画函数来更新数字
+  updateUnit(daysFlipper, days);
+  updateUnit(hoursFlipper, hours);
+  updateUnit(minutesFlipper, minutes);
+  updateUnit(secondsFlipper, seconds);
 }
 
 const interval = setInterval(updateCountdown, 1000);
-updateCountdown(); // 立即执行一次，避免页面打开时延迟一秒显示
+updateCountdown();
 </script>
 
 </body>
