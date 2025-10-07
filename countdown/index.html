@@ -147,7 +147,7 @@
 <script>
 // --- 您只需要在这里修改配置 ---
 const targetDate = new Date("2025-12-20T08:00:00");
-const finishedMessage = "金榜题名🎉";
+const finishedMessage = "金榜题名！🎉";
 // ------------------------------
 
 // 获取flipper容器
@@ -157,9 +157,13 @@ const minutesFlipper = document.getElementById('minutes-flipper');
 const secondsFlipper = document.getElementById('seconds-flipper');
 const titleEl = document.getElementById('title');
 
-// 封装一个更新动画的函数
+// 封装一个更新动画的函数 (已修正)
 function updateUnit(flipperElement, newValue) {
-  const currentNumberElement = flipperElement.querySelector('.number');
+  // querySelector只会选择第一个匹配的元素，我们需要选择没有.old类的那个
+  const currentNumberElement = flipperElement.querySelector('.number:not(.old)');
+  // 如果找不到当前元素（动画正在进行中），则直接返回
+  if (!currentNumberElement) return;
+
   const currentValue = currentNumberElement.textContent;
 
   // 只有当数字真的改变时才执行动画
@@ -179,6 +183,13 @@ function updateUnit(flipperElement, newValue) {
 
     // 4. 将新数字添加到容器中
     flipperElement.appendChild(newNumberElement);
+
+    // ***** 关键修复 *****
+    // 当新数字的“进入”动画结束后，立刻移除它的.new类，
+    // 把它变成一个“普通”数字，为下一次更新做准备。
+    newNumberElement.addEventListener('animationend', () => {
+        newNumberElement.classList.remove('new');
+    }, { once: true }); // { once: true } 确保这个事件只触发一次
   }
 }
 
