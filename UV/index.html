@@ -26,5 +26,34 @@
 
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
+<script>
+// --- 您可以在这里设置想要的初始计数值 ---
+const initialCount = 500;
+// ------------------------------------
+
+const targetId = 'busuanzi_value_site_pv';
+
+// 创建一个监视器，等待“不蒜子”脚本将数字写入页面
+const observer = new MutationObserver(function(mutations) {
+  const targetElement = document.getElementById(targetId);
+  // 当目标元素出现并且里面有数字时
+  if (targetElement && targetElement.textContent.trim().length > 0) {
+    const actualCount = parseInt(targetElement.textContent, 10);
+    // 确保转换的数字有效
+    if (!isNaN(actualCount)) {
+      // 将真实计数值和您的初始值相加，并更新到页面上
+      targetElement.textContent = actualCount + initialCount;
+      // 完成任务后，停止监视，避免不必要的计算
+      observer.disconnect();
+    }
+  }
+});
+
+// 启动监视器，监视整个body内容的变化
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+</script>  
 </body>
 </html>
