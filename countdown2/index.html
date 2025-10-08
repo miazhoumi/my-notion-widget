@@ -24,7 +24,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-color: var(--bg-color); /* 背景设为组件颜色，确保无白边 */
+    background-color: var(--bg-color);
   }
 
   /* --- 组件容器样式 --- */
@@ -32,9 +32,9 @@
     width: 300px;
     height: 300px;
     background-color: var(--bg-color);
-    border-radius: 24px;
+    border-radius: 40px; /* <-- 修改点：增加了圆角的大小 */
     padding: 20px;
-    box-sizing: border-box; /* 让padding不影响总宽高 */
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -73,8 +73,8 @@
     color: var(--days-color);
   }
   .days-label {
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 20px; /* 稍微增大了“天”字的大小以匹配中文 */
+    font-weight: 500;
     letter-spacing: 2px;
   }
   .finished-message {
@@ -89,7 +89,7 @@
     width: 50%;
     height: 100%;
     display: flex;
-    align-items: flex-end; /* 让图片沉在右下角 */
+    align-items: flex-end;
     justify-content: center;
   }
   .image-container img {
@@ -107,29 +107,21 @@
     <div class="target-date" id="target-date-display"></div>
     <div class="days-container">
       <div class="days" id="days">...</div>
-      <div class="days-label">Days</div>
+      <div class="days-label">天</div>
     </div>
   </div>
   <div class="image-container">
-    <img src="https://cdn.pixabay.com/photo/2013/07/13/12/09/cat-159308_1280.png" alt="cute illustration">
+    <img src="https://i.imgur.com/gO2gZKW.png" alt="cute illustration">
   </div>
 </div>
 
 <script>
 // --- 您只需要在这里修改配置 ---
-
-// 1. 设置您的目标日期 (格式: "YYYY-MM-DD")
 const targetDate = "2025-12-20";
-
-// 2. 设置标题
 const titleText = "考研倒计时";
-
-// 3. 设置倒计时结束时显示的文字 (用\n可以换行)
 const finishedMessage = "金榜题名！";
-
 // ------------------------------
 
-// 获取页面元素
 const daysEl = document.getElementById('days');
 const dateDisplayEl = document.getElementById('target-date-display');
 const titleEl = document.getElementById('title-text');
@@ -138,32 +130,21 @@ const daysContainerEl = document.querySelector('.days-container');
 function updateCountdown() {
   const target = new Date(targetDate);
   const now = new Date();
-
-  // 将时间都设置为当天的零点，以精确计算天数
   target.setHours(0, 0, 0, 0);
   now.setHours(0, 0, 0, 0);
-
-  const diff = target - now; // 毫秒差
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24)); // 转换为天数并向上取整
-
-  // 更新标题和目标日期显示
+  const diff = target - now;
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
   titleEl.textContent = titleText;
   const [year, month, day] = targetDate.split('-');
   dateDisplayEl.textContent = `${year}/${month}/${day}`;
-  
-  // 判断倒计时是否结束
   if (days <= 0) {
     daysContainerEl.innerHTML = `<div class="finished-message">${finishedMessage.replace(/\n/g, '<br>')}</div>`;
-    dateDisplayEl.style.display = 'none'; // 结束后隐藏日期
+    dateDisplayEl.style.display = 'none';
   } else {
     daysEl.textContent = days;
   }
 }
-
-// 页面加载时立即执行一次
 updateCountdown();
-
-// 倒计天数每天只变一次，我们不需要每秒都更新。设置为每5分钟检查一次，节省资源。
 setInterval(updateCountdown, 1000 * 60 * 60); 
 </script>
 
