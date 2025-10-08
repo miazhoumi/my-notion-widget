@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Days Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;800&display=swap" rel="stylesheet">
+<style>
+  /* --- 样式配置区 --- */
+  :root {
+    --bg-color: #fceee8;         /* 背景颜色 */
+    --text-color: #c49a91;       /* 主要文字颜色 */
+    --days-color: #af6a5f;       /* 天数数字颜色 */
+    --font-family: 'M PLUS Rounded 1c', sans-serif; /* 字体 */
+  }
+
+  /* --- 页面基础样式 --- */
+  body, html {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: var(--bg-color); /* 背景设为组件颜色，确保无白边 */
+  }
+
+  /* --- 组件容器样式 --- */
+  .widget-container {
+    width: 300px;
+    height: 300px;
+    background-color: var(--bg-color);
+    border-radius: 24px;
+    padding: 20px;
+    box-sizing: border-box; /* 让padding不影响总宽高 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-family);
+    position: relative;
+  }
+
+  /* --- 左侧文字区域 --- */
+  .text-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 50%;
+    color: var(--text-color);
+  }
+
+  .title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .target-date {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .days-container {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .days {
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--days-color);
+  }
+  .days-label {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 2px;
+  }
+  .finished-message {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--days-color);
+  }
+
+  /* --- 右侧图片区域 --- */
+  .image-container {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end; /* 让图片沉在右下角 */
+    justify-content: center;
+  }
+  .image-container img {
+    max-width: 100%;
+    max-height: 100px;
+    object-fit: contain;
+  }
+</style>
+</head>
+<body>
+
+<div class="widget-container">
+  <div class="text-content">
+    <div class="title" id="title-text">考研</div>
+    <div class="target-date" id="target-date-display"></div>
+    <div class="days-container">
+      <div class="days" id="days">...</div>
+      <div class="days-label">Days</div>
+    </div>
+  </div>
+  <div class="image-container">
+    <img src="https://cdn.pixabay.com/photo/2013/07/13/12/09/cat-159308_1280.png" alt="cute illustration">
+  </div>
+</div>
+
+<script>
+// --- 您只需要在这里修改配置 ---
+
+// 1. 设置您的目标日期 (格式: "YYYY-MM-DD")
+const targetDate = "2025-12-20";
+
+// 2. 设置标题
+const titleText = "考研倒计时";
+
+// 3. 设置倒计时结束时显示的文字 (用\n可以换行)
+const finishedMessage = "金榜题名！";
+
+// ------------------------------
+
+// 获取页面元素
+const daysEl = document.getElementById('days');
+const dateDisplayEl = document.getElementById('target-date-display');
+const titleEl = document.getElementById('title-text');
+const daysContainerEl = document.querySelector('.days-container');
+
+function updateCountdown() {
+  const target = new Date(targetDate);
+  const now = new Date();
+
+  // 将时间都设置为当天的零点，以精确计算天数
+  target.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+
+  const diff = target - now; // 毫秒差
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24)); // 转换为天数并向上取整
+
+  // 更新标题和目标日期显示
+  titleEl.textContent = titleText;
+  const [year, month, day] = targetDate.split('-');
+  dateDisplayEl.textContent = `${year}/${month}/${day}`;
+  
+  // 判断倒计时是否结束
+  if (days <= 0) {
+    daysContainerEl.innerHTML = `<div class="finished-message">${finishedMessage.replace(/\n/g, '<br>')}</div>`;
+    dateDisplayEl.style.display = 'none'; // 结束后隐藏日期
+  } else {
+    daysEl.textContent = days;
+  }
+}
+
+// 页面加载时立即执行一次
+updateCountdown();
+
+// 倒计天数每天只变一次，我们不需要每秒都更新。设置为每5分钟检查一次，节省资源。
+setInterval(updateCountdown, 1000 * 60 * 60); 
+</script>
+
+</body>
+</html>
