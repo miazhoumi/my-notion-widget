@@ -10,10 +10,11 @@
 <style>
   /* --- 样式配置区 --- */
   :root {
-    --bg-color: #fceee8;         /* 背景颜色 */
-    --text-color: #c49a91;       /* 主要文字颜色 */
-    --days-color: #af6a5f;       /* 天数数字颜色 */
-    --font-family: 'M PLUS Rounded 1c', sans-serif; /* 字体 */
+    --bg-color: #fceee8;
+    --text-color: #c49a91;
+    --days-color: #af6a5f;
+    --title-color: #af6a5f; /* 为标题也设置一个颜色 */
+    --font-family: 'M PLUS Rounded 1c', sans-serif;
   }
 
   /* --- 页面基础样式 --- */
@@ -29,17 +30,17 @@
 
   /* --- 组件容器样式 --- */
   .widget-container {
-    width: 350px;
+    width: 320px; /* 稍微加宽以容纳5个字的标题 */
     height: 300px;
     background-color: var(--bg-color);
-    border-radius: 100px; /* <-- 修改点：增加了圆角的大小 */
+    border-radius: 40px;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-family: var(--font-family);
-    position: relative;
+    position: relative; /* <-- 修改点1：设为相对定位，作为标题定位的基准 */
   }
 
   /* --- 左侧文字区域 --- */
@@ -51,16 +52,25 @@
     height: 100%;
     width: 50%;
     color: var(--text-color);
+    padding-top: 30px; /* <-- 修改点2：为顶部的标题留出空间 */
   }
 
+  /* --- 标题样式 (核心修改) --- */
   .title {
-    font-size: 40px;
+    position: absolute;   /* <-- 修改点3：将标题设为绝对定位，脱离文档流 */
+    top: 35px;            /* <-- 修改点4：距离顶部的位置 */
+    left: 0;              /* <-- 修改点5：撑满整个容器宽度，以便居中 */
+    width: 100%;          /* <-- 修改点6：撑满整个容器宽度，以便居中 */
+    text-align: center;   /* <-- 修改点7：实现水平居中 */
+    font-size: 36px;      /* <-- 修改点8：放大了字体 */
     font-weight: 800;
-    margin-bottom: 8px;
+    color: var(--title-color);
   }
+
   .target-date {
     font-size: 16px;
     font-weight: 500;
+    margin-top: 8px; /* 微调间距 */
   }
   .days-container {
     margin-top: 15px;
@@ -73,7 +83,7 @@
     color: var(--days-color);
   }
   .days-label {
-    font-size: 20px; /* 稍微增大了“天”字的大小以匹配中文 */
+    font-size: 20px;
     font-weight: 500;
     letter-spacing: 2px;
   }
@@ -102,26 +112,29 @@
 <body>
 
 <div class="widget-container">
+  <div class="title" id="title-text">考研倒计时</div>
+  
   <div class="text-content">
-    <div class="title" id="title-text">考研</div>
     <div class="target-date" id="target-date-display"></div>
     <div class="days-container">
       <div class="days" id="days">...</div>
       <div class="days-label">天</div>
     </div>
   </div>
+  
   <div class="image-container">
-    <img src="https://cdn.pixabay.com/animation/2022/07/30/22/01/22-01-29-66_512.gif" alt="cute illustration">
+    <img src="https://cdn.pixabay.com/animation/2022/07/30/22/01/22-01-29-66_512.gif" alt="cute cat illustration">
   </div>
 </div>
 
 <script>
 // --- 您只需要在这里修改配置 ---
 const targetDate = "2025-12-20";
-const titleText = "考研倒计时";
+const titleText = "考研倒计时"; // <-- 确保这里的文字和HTML中的一致
 const finishedMessage = "金榜题名！";
 // ------------------------------
 
+// JavaScript部分无需修改
 const daysEl = document.getElementById('days');
 const dateDisplayEl = document.getElementById('target-date-display');
 const titleEl = document.getElementById('title-text');
@@ -140,12 +153,13 @@ function updateCountdown() {
   if (days <= 0) {
     daysContainerEl.innerHTML = `<div class="finished-message">${finishedMessage.replace(/\n/g, '<br>')}</div>`;
     dateDisplayEl.style.display = 'none';
+    titleEl.style.display = 'none'; // 结束后也隐藏标题
   } else {
     daysEl.textContent = days;
   }
 }
 updateCountdown();
-setInterval(updateCountdown, 1000 * 60 * 60); 
+setInterval(updateCountdown, 1000 * 60 * 5); 
 </script>
 
 </body>
